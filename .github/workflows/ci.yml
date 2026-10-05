@@ -1,0 +1,71 @@
+#tên của workflow CI
+#tên sẽ được hiển thị trong tab "Actions" trên GitHub
+name: CI Workflow
+
+#điều kiện để workflow được kích hoạt
+on:
+  #khi có thay đổi được đẩy lên nhánh chính
+  push:
+    branches:
+      - main
+  #khi có pull request vào nhánh chính
+  # Chỉ chạy khi Pull Request có branch đích là main.
+  # Ví dụ:
+  # feature/login → main   => chạy CI
+  # feature/login → develop => không chạy
+  pull_request:
+    branches:
+      - main
+
+#công việc mà workflow sẽ thực hiện
+#ví dụ về một job cơ bản: test, build, deploy
+jobs:
+  #tên của job
+  test:
+    #github tạo máy ubuntu mới (tạm thời) để chạy job này
+    #dùng để thực hiện toàn bộ các bước trong job trên máy ubuntu tạm thời
+    runs-on: ubuntu-latest
+
+    #định nghĩa các bước chạy lần lượt
+    steps:
+      #step1: lấy source code
+      #name: tên của step, hiển thị trong tab "Actions" trên GitHub -> dùng để nhận biết bước
+      - name: Checkout code
+        #lấy source code từ repository về máy ubuntu tạm thời
+        #use: sử dụng một github action có sẵn để thực hiện một nhiệm vụ cụ thể
+        #action: actions/checkout@v3 -> lấy source code từ repository về máy ubuntu tạm thời
+        uses: actions/checkout@v4
+
+      #step2: cài đặt môi trường
+      - name: set up Node.js
+        uses: actions/setup-node@v4
+        #cấu hình các options cho action setup
+        with:
+          #node-version: phiên bản Node.js cần cài đặt
+          node-version: "20"
+          #cache: loại cache cần sử dụng, ở đây là cache cho npm
+          #giúp cho cài đặt các gói npm nhanh hơn bằng cách sử dụng cache
+          cache: "npm"
+
+      #step3: cài đặt các dependencies (node_modules)
+      - name: Install dependencies
+        #chạy lệnh command để cài đặt các dependencies
+        run: npm install
+
+      #step4: cài đặt browser cho Playwright
+      - name: Install Playwright browsers
+        #cài đặt các browser cần thiết cho Playwright, bao gồm cả các system dependencies cần thiết để chạy trên ubuntu
+        run: npx playwright install --with-deps
+
+      #step5: chạy các bài test với Playwright
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      #step6: báo cáo kết quả test
+      - name: Report test results
+        uses: actions/upload-artifact@v4
+        with:
+          #tên hiển thị của artifact trên GitHub Actions
+          name: playwright-test-results
+          #đường dẫn tới thư mục chứa kết quả test của Playwright, nơi chưa folder kết quả test sau khi chạy Playwright
+          path: playwright-report/
