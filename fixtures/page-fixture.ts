@@ -1,29 +1,62 @@
-import { RegisterPage } from "./../pages/RegisterPage";
-import { LoginPage } from "./../pages/LoginPage";
-import { HomePage } from "./../pages/HomePage";
-import { test as base } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
+import { HomePage } from "../pages/HomePage.ts";
+import { LoginPage } from "../pages/LoginPage.ts";
+import { RegisterPage } from "../pages/RegisterPage.ts";
+import { RoomsPage } from "../pages/RoomsPage.ts";
+import { RoomDetailPage } from "../pages/RoomDetailPage.ts";
+import { BookingPage } from "../pages/BookingPage.ts";
+import { ProfilePage } from "../pages/ProfilePage.ts";
+import { env } from "../utils/env.ts";
 
 type MyFixture = {
   homePage: HomePage;
   loginPage: LoginPage;
   registerPage: RegisterPage;
-  //thêm các page khác nếu cần
+  roomsPage: RoomsPage;
+  roomDetailPage: RoomDetailPage;
+  bookingPage: BookingPage;
+  profilePage: ProfilePage;
+  // Opens the home page and logs in with the valid account from .env
+  loggedInUser: void;
+  // add more pages here when needed
 };
 
 export const test = base.extend<MyFixture>({
-  homePage: ({ page }, use) => {
-    const homePage = new HomePage(page);
-    //khai báo sử dụng homePage trong test
-    use(homePage);
+  homePage: async ({ page }, use) => {
+    await use(new HomePage(page));
   },
 
-  loginPage: ({ page }, use) => {
-    const loginPage = new LoginPage(page);
-    use(loginPage);
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
   },
 
-  registerPage: ({ page }, use) => {
-    const registerPage = new RegisterPage(page);
-    use(registerPage);
+  registerPage: async ({ page }, use) => {
+    await use(new RegisterPage(page));
+  },
+
+  roomsPage: async ({ page }, use) => {
+    await use(new RoomsPage(page));
+  },
+
+  roomDetailPage: async ({ page }, use) => {
+    await use(new RoomDetailPage(page));
+  },
+
+  bookingPage: async ({ page }, use) => {
+    await use(new BookingPage(page));
+  },
+
+  profilePage: async ({ page }, use) => {
+    await use(new ProfilePage(page));
+  },
+
+  loggedInUser: async ({ page, loginPage }, use) => {
+    await page.goto("/");
+    await loginPage.openSignInForm();
+    await loginPage.login(env.loginEmail, env.loginPassword);
+    await expect(loginPage.getHeaderComponent().userMenuButton).toBeVisible();
+    await use();
   },
 });
+
+export { expect };

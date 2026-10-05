@@ -60,6 +60,18 @@ jobs:
       #step5: chạy các bài test với Playwright
       - name: Run Playwright tests
         run: npx playwright test
+        #test data and credentials come from repository secrets (see .env.example for names)
+        env:
+          LOGIN_EMAIL: ${{ secrets.LOGIN_EMAIL }}
+          LOGIN_PASSWORD: ${{ secrets.LOGIN_PASSWORD }}
+          LOGIN_INVALID_EMAIL: ${{ secrets.LOGIN_INVALID_EMAIL }}
+          LOGIN_INVALID_PASSWORD: ${{ secrets.LOGIN_INVALID_PASSWORD }}
+          REGISTER_NAME: ${{ secrets.REGISTER_NAME }}
+          REGISTER_EXISTING_EMAIL: ${{ secrets.REGISTER_EXISTING_EMAIL }}
+          REGISTER_PASSWORD: ${{ secrets.REGISTER_PASSWORD }}
+          REGISTER_PHONE: ${{ secrets.REGISTER_PHONE }}
+          REGISTER_BIRTHDAY: ${{ secrets.REGISTER_BIRTHDAY }}
+          REGISTER_GENDER: ${{ secrets.REGISTER_GENDER }}
 
       #step6: báo cáo kết quả test
       - name: Report test results
