@@ -29,7 +29,8 @@ export class BookingPage extends CommonPage {
     this.yearDropdown = page.locator("span.rdrYearPicker select");
     this.closeCalendarButton = page.locator(".ant-modal-title button", { hasText: "Close" });
     const guestRow = page.locator("xpath=//div[text()='Khách']/following-sibling::div");
-    this.plusGuestButton = guestRow.locator("div", { hasText: /^\+$/ });
+    // The "+" text is nested in two divs; the innermost one is the clickable button
+    this.plusGuestButton = guestRow.locator("div", { hasText: /^\+$/ }).last();
     this.guestCount = guestRow.locator("xpath=div[.='–']/following-sibling::div[text()]");
     this.bookingButton = page.locator("button", { hasText: /^Đặt phòng$/ });
     this.confirmButton = page.locator("xpath=//h5/following::div//button[text()='Xác nhận']");

@@ -55,6 +55,9 @@ export const test = base.extend<MyFixture>({
     await loginPage.openSignInForm();
     await loginPage.login(env.loginEmail, env.loginPassword);
     await expect(loginPage.getHeaderComponent().userMenuButton).toBeVisible();
+    // The app redirects to the home page once the login toast closes, so wait for it
+    // before the test navigates anywhere (otherwise the redirect cancels the navigation)
+    await expect(page.locator(".ant-message-notice-content").first()).toBeHidden();
     await use();
   },
 });

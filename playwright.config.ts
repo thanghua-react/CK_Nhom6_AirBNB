@@ -17,8 +17,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* 4 workers locally: more parallel users make the shared demo site too slow. 1 worker on CI. */
+  workers: process.env.CI ? 1 : 4,
   reporter: "html",
   use: {
     baseURL: process.env.BASE_URL ?? "https://demo5.cybersoft.edu.vn",

@@ -4,6 +4,8 @@ import { env } from "../../utils/env.ts";
 
 const AVATAR_VALID = path.resolve("data/files/avatar.jpg");
 const AVATAR_INVALID = path.resolve("data/files/avatar-wrong-format.txt");
+// The edit form rejects names with digits or "-" (e.g. the test account name), so use a plain name
+const VALID_NAME = "Nhom Sau";
 
 test.describe("verify profile function", () => {
   test.beforeEach(async ({ loggedInUser, homePage }) => {
@@ -22,6 +24,7 @@ test.describe("verify profile function", () => {
   test("update phone number", async ({ profilePage }) => {
     //step 1: open the update modal and change the phone number
     await profilePage.openUpdateModal();
+    await profilePage.updateName(VALID_NAME);
     await profilePage.updatePhone(env.registerPhone);
     await profilePage.clickUpdateButton();
 
@@ -34,6 +37,7 @@ test.describe("verify profile function", () => {
   }) => {
     //step 1: open the update modal and enter an email owned by another user
     await profilePage.openUpdateModal();
+    await profilePage.updateName(VALID_NAME);
     await profilePage.updateEmail(env.registerExistingEmail);
     await profilePage.clickUpdateButton();
 

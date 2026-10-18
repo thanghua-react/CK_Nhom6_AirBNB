@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 import { CommonPage } from "./CommonPage.ts";
 
 export class HomePage extends CommonPage {
@@ -40,6 +40,10 @@ export class HomePage extends CommonPage {
 
   // Opens the room list of Ho Chi Minh from the location cards on the home page
   async openHoChiMinhRooms() {
-    await this.clickElement(this.hoChiMinhCard);
+    // The page re-renders right after login and can swallow the first click, so retry until it navigates
+    await expect(async () => {
+      await this.clickElement(this.hoChiMinhCard);
+      await expect(this.page).toHaveURL(/rooms\/ho-chi-minh/, { timeout: 5000 });
+    }).toPass({ timeout: 30000 });
   }
 }

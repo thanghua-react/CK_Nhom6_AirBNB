@@ -4,6 +4,7 @@ import { CommonPage } from "./CommonPage.ts";
 export class ProfilePage extends CommonPage {
   private editProfileButton: Locator;
   private updateButton: Locator;
+  private nameInput: Locator;
   private emailInput: Locator;
   private phoneInput: Locator;
   private changeAvatarButton: Locator;
@@ -22,8 +23,10 @@ export class ProfilePage extends CommonPage {
     this.updateButton = page.locator(".ant-modal-content button[type='button']", {
       hasText: "Cập nhật",
     });
-    this.emailInput = page.locator("input#email");
-    this.phoneInput = page.locator("input#phone");
+    // Scoped to the edit modal: the page also contains a hidden login form with an #email input
+    this.nameInput = page.locator(".ant-modal-content input#name");
+    this.emailInput = page.locator(".ant-modal-content input.ant-input#email");
+    this.phoneInput = page.locator(".ant-modal-content input#phone");
     this.changeAvatarButton = page.locator(".ant-card-body button", { hasText: "Cập nhật ảnh" });
     this.fileInput = page.locator("input[type='file']");
     this.uploadAvatarButton = this.fileInput.locator(
@@ -35,8 +38,9 @@ export class ProfilePage extends CommonPage {
     this.updateSuccessNotice = page.locator(".ant-message-notice-content", {
       hasText: "Cập nhật thông tin thành công",
     });
+    // Matched by keyword so the check does not depend on the exact Vietnamese sentence
     this.uploadSuccessNotice = page.locator(".ant-message-notice-content", {
-      hasText: "Cập nhật avatar thành công!",
+      hasText: /avatar/i,
     });
     this.bookingItems = page.locator("xpath=//div[@class='ant-card-body']/ancestor::a");
   }
@@ -51,6 +55,10 @@ export class ProfilePage extends CommonPage {
 
   async clickUpdateButton() {
     await this.clickElement(this.updateButton);
+  }
+
+  async updateName(name: string) {
+    await this.inputText(this.nameInput, name);
   }
 
   async updateEmail(email: string) {

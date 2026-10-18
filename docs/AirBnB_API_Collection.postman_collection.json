@@ -1,0 +1,941 @@
+{
+  "info": {
+    "_postman_id": "5beb3507-341c-4de4-95f5-5d0495ab0250",
+    "name": "AirBnB Final Project",
+    "description": "API tests for the AirBnB clone backend (https://airbnbnew.cybersoft.edu.vn). Run the requests in order (Runner). Set email/password in the collection variables first.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01_Auth",
+      "item": [
+        {
+          "name": "API_01 Signin - Happy Case",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test(\"Response contains token\", function () {",
+                  "    pm.expect(jsonData.content).to.have.property(\"token\");",
+                  "});",
+                  "",
+                  "// Save the token (and the user id) as collection variables so the next requests can reuse them",
+                  "const token = jsonData.content && jsonData.content.token;",
+                  "if (token) {",
+                  "    pm.collectionVariables.set(\"token_airbnb\", token);",
+                  "",
+                  "    let userId = jsonData.content.user && jsonData.content.user.id;",
+                  "    if (!userId) {",
+                  "        // Fallback: the user id is stored in the JWT payload",
+                  "        try {",
+                  "            let payload = token.split(\".\")[1].replace(/-/g, \"+\").replace(/_/g, \"/\");",
+                  "            while (payload.length % 4) { payload += \"=\"; }",
+                  "            userId = JSON.parse(atob(payload)).id;",
+                  "        } catch (e) {",
+                  "            console.log(\"Cannot read user id from token: \" + e.message);",
+                  "        }",
+                  "    }",
+                  "    if (userId) {",
+                  "        pm.collectionVariables.set(\"user_id\", String(userId));",
+                  "    }",
+                  "}",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/signin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signin"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_02 Signin - Wrong Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Error content is returned\", function () {",
+                  "    pm.expect(pm.response.json().content).to.be.ok;",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/signin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signin"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}-wrong\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_03 Signin - Missing Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/signin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signin"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"\",\n    \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_04 Signup - Existing Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Error content is returned\", function () {",
+                  "    pm.expect(pm.response.json().content).to.be.ok;",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signup"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 0,\n    \"name\": \"API Test User\",\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\",\n    \"phone\": \"0123456789\",\n    \"birthday\": \"01/01/2000\",\n    \"gender\": true,\n    \"role\": \"USER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02_Flow_After_Login",
+      "item": [
+        {
+          "name": "API_05 Get User By Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Email matches the login account\", function () {",
+                  "    pm.expect(pm.response.json().content.email).to.eql(pm.collectionVariables.get(\"email\"));",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              },
+              {
+                "key": "token",
+                "value": "{{token_airbnb}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_06 Upload Avatar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response contains content\", function () {",
+                  "    pm.expect(pm.response.json()).to.have.property(\"content\");",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              },
+              {
+                "key": "token",
+                "value": "{{token_airbnb}}",
+                "type": "text"
+              }
+            ],
+            "description": "Select an image file (jpg/png, under 2MB) for the formFile field before sending.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "formFile",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/upload-avatar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "upload-avatar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_07 Search Rooms (Pagination)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Page contains at most pageSize rooms\", function () {",
+                  "    const data = pm.response.json().content.data;",
+                  "    pm.expect(data).to.be.an(\"array\");",
+                  "    pm.expect(data.length).to.be.at.most(10);",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/phong-thue/phan-trang-tim-kiem?pageIndex=1&pageSize=10&keyword=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "phong-thue",
+                "phan-trang-tim-kiem"
+              ],
+              "query": [
+                {
+                  "key": "pageIndex",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                },
+                {
+                  "key": "keyword",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_08 Get Rooms By Location",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Content is an array\", function () {",
+                  "    pm.expect(pm.response.json().content).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/phong-thue/lay-phong-theo-vi-tri?maViTri={{location_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "phong-thue",
+                "lay-phong-theo-vi-tri"
+              ],
+              "query": [
+                {
+                  "key": "maViTri",
+                  "value": "{{location_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_09 Get Room Detail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Room id matches the request\", function () {",
+                  "    pm.expect(String(pm.response.json().content.id)).to.eql(pm.collectionVariables.get(\"room_id\"));",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/phong-thue/{{room_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "phong-thue",
+                "{{room_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_10 Get Locations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Location list is not empty\", function () {",
+                  "    const content = pm.response.json().content;",
+                  "    pm.expect(content).to.be.an(\"array\");",
+                  "    pm.expect(content.length).to.be.above(0);",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vi-tri",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vi-tri"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_11 Create Booking",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Check-in = today + 30 days, check-out = today + 37 days (ISO date-time)",
+                  "const day = 24 * 60 * 60 * 1000;",
+                  "pm.collectionVariables.set(\"check_in\", new Date(Date.now() + 30 * day).toISOString());",
+                  "pm.collectionVariables.set(\"check_out\", new Date(Date.now() + 37 * day).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is one of [200, 201]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "pm.test(\"Booking content is returned\", function () {",
+                  "    pm.expect(pm.response.json().content).to.exist;",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/dat-phong",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dat-phong"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 0,\n    \"maPhong\": {{room_id}},\n    \"ngayDen\": \"{{check_in}}\",\n    \"ngayDi\": \"{{check_out}}\",\n    \"soLuongKhach\": 2,\n    \"maNguoiDung\": {{user_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_12 Get Bookings By User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Booking list is not empty (after API_11)\", function () {",
+                  "    const content = pm.response.json().content;",
+                  "    pm.expect(content).to.be.an(\"array\");",
+                  "    pm.expect(content.length).to.be.above(0);",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/dat-phong/lay-theo-nguoi-dung/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dat-phong",
+                "lay-theo-nguoi-dung",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_13 Add Comment",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Check-in = today + 30 days, check-out = today + 37 days (ISO date-time)",
+                  "const day = 24 * 60 * 60 * 1000;",
+                  "pm.collectionVariables.set(\"check_in\", new Date(Date.now() + 30 * day).toISOString());",
+                  "pm.collectionVariables.set(\"check_out\", new Date(Date.now() + 37 * day).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is one of [200, 201]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "pm.test(\"Comment content matches\", function () {",
+                  "    pm.expect(pm.response.json().content.noiDung).to.include(\"API test comment\");",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              },
+              {
+                "key": "token",
+                "value": "{{token_airbnb}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/binh-luan",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "binh-luan"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 0,\n    \"maPhong\": {{room_id}},\n    \"maNguoiBinhLuan\": {{user_id}},\n    \"ngayBinhLuan\": \"{{check_in}}\",\n    \"noiDung\": \"API test comment\",\n    \"saoBinhLuan\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_14 Get Comments By Room",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Content is an array\", function () {",
+                  "    pm.expect(pm.response.json().content).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/binh-luan/lay-binh-luan-theo-phong/{{room_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "binh-luan",
+                "lay-binh-luan-theo-phong",
+                "{{room_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03_Negative_Security",
+      "item": [
+        {
+          "name": "API_15 Request Without tokenCybersoft",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is one of [401, 403]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vi-tri",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vi-tri"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API_16 Add Comment Without User Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Check-in = today + 30 days, check-out = today + 37 days (ISO date-time)",
+                  "const day = 24 * 60 * 60 * 1000;",
+                  "pm.collectionVariables.set(\"check_in\", new Date(Date.now() + 30 * day).toISOString());",
+                  "pm.collectionVariables.set(\"check_out\", new Date(Date.now() + 37 * day).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Comment without user token must be rejected (400/401/403). 200 => BUG\", function () {",
+                  "    const code = pm.response.code;",
+                  "    pm.expect([200, 201, 400, 401, 403]).to.include(code);",
+                  "    if ([200, 201].includes(code)) {",
+                  "        throw new Error(\"BUG: system accepts a comment without the user token\");",
+                  "    }",
+                  "});",
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "tokencybersoft",
+                "value": "{{tokenCybersoft}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/binh-luan",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "binh-luan"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 0,\n    \"maPhong\": {{room_id}},\n    \"maNguoiBinhLuan\": {{user_id}},\n    \"ngayBinhLuan\": \"{{check_in}}\",\n    \"noiDung\": \"Comment without token - should be blocked\",\n    \"saoBinhLuan\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://airbnbnew.cybersoft.edu.vn",
+      "type": "string"
+    },
+    {
+      "key": "tokenCybersoft",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5Mb3AiOiJCb290Y2FtcCAwMSIsIkhldEhhblN0cmluZyI6IjMwLzA5LzIwMzEiLCJIZXRIYW5UaW1lIjoiMTk0ODQ5MjgwMDAwMCIsIm5iZiI6MTYwMTIyNjAwMCwiZXhwIjoxOTQ4NjQwNDAwfQ.4l-eTzlgVnFczfvc2Or7BNPOcaesY3Kwc8RoNm-o-6M",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "test16-nhom6@gmail.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "test16-nhom6",
+      "type": "string"
+    },
+    {
+      "key": "room_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "location_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "token_airbnb",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "check_in",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "check_out",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

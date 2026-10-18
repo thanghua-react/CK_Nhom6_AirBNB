@@ -26,6 +26,10 @@ export class BasePage {
     locator: Locator,
     timeOut: number = TimeOutConstant.TIME_OUT_DEFAULT,
   ) {
+    // Center the element first so the fixed header/footer of the site never covers it
+    await locator.evaluate((el) => el.scrollIntoView({ block: "center" }), undefined, {
+      timeout: timeOut,
+    });
     await locator.click({
       timeout: timeOut,
     });
